@@ -1,6 +1,6 @@
 # Usage
 ```sh
-uv run main.py extract <url> -f <format>
+bun run dev extract <url> -f <format>
 ```
 
 format flags:
