@@ -12,5 +12,6 @@ fields extracted:
 - url
 - title
 - logo_url
+- svg_url
 - fonts
 - meta - description, keywords, og_title, og_description, og_image
