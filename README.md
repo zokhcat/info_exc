@@ -1,6 +1,6 @@
 # Usage
 ```sh
-bun run dev extract <url> -f <format>
+bun run dev extract <url> -f <format> -m <model> -t <temperature>
 ```
 
 format flags:
