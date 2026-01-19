@@ -50,7 +50,7 @@ async function runTests() {
         success: false,
         error: String(error),
       };
-      console.error(`✗ Failed: ${error}`);
+      console.error(`Failed: ${error}`);
     }
   }
 

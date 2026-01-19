@@ -15,3 +15,8 @@ fields extracted:
 - svg_url
 - fonts
 - meta - description, keywords, og_title, og_description, og_image
+
+run tests:
+```
+- bun run test:logos
+```
