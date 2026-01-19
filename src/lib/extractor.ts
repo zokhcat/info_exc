@@ -1,5 +1,6 @@
 import puppeteer, { Page } from "puppeteer";
 import { extractWithLLM } from "./llm.js";
+import { LLMConfig } from "../config.js";
 
 export interface Meta {
   description: string | null;
@@ -40,7 +41,8 @@ async function extractMeta(page: Page): Promise<Meta> {
 
 export async function extractData(
   url: string,
-  openaiApiKey?: string
+  openaiApiKey: string,
+  llmConfig: LLMConfig,
 ): Promise<ExtractedData> {
   const browser = await puppeteer.launch({
     headless: true,
@@ -60,7 +62,7 @@ export async function extractData(
     const meta = await extractMeta(page);
 
     if (openaiApiKey) {
-      const llmResult = await extractWithLLM(page, openaiApiKey);
+      const llmResult = await extractWithLLM(page, openaiApiKey, llmConfig);
       
       return {
         url,

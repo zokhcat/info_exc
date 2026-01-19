@@ -1,6 +1,7 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { Page } from "puppeteer";
+import { LLMConfig } from "../config.js";
 
 interface LogoCandidate {
   index: number;
@@ -78,9 +79,10 @@ async function extractLogoCandidates(page: Page): Promise<LogoCandidate[]> {
     
     document.querySelectorAll('svg').forEach((svg) => {
       const rect = svg.getBoundingClientRect();
-      if (rect.width < 10 || rect.height < 10) return;
-      if (rect.width > 500 || rect.height > 500) return;
-      
+      const width = rect.width || parseFloat(svg.getAttribute('width')) || 0;
+      const height = rect.height || parseFloat(svg.getAttribute('height')) || 0;
+      if (width < 10 || height < 10) return;
+      if (width > 500 || height > 500) return;      
       const className = svg.className?.baseVal || svg.getAttribute('class') || '';
       const id = svg.id || '';
       
@@ -109,8 +111,8 @@ async function extractLogoCandidates(page: Page): Promise<LogoCandidate[]> {
           parentText: getParentText(svg),
           location: getLocation(svg),
           tagName: 'svg',
-          width: rect.width,
-          height: rect.height,
+          width: width,
+          height: height,
           linksToHome: linksToHome,
           parentTag: parentTag,
           parentClass: parentClass,
@@ -174,7 +176,8 @@ async function extractFontCandidates(page: Page): Promise<string[]> {
 
 export async function extractWithLLM(
   page: Page,
-  openaiApiKey: string
+  openaiApiKey: string,
+  llmConfig: LLMConfig
 ): Promise<LLMExtractionResult> {
   const pageTitle = await page.title();
   const pageUrl = page.url();
@@ -185,13 +188,10 @@ export async function extractWithLLM(
   
   let relevantLogos = logoCandidates
     .filter(c => ['header', 'nav'].includes(c.location))
-    .slice(0, 15);
   
   if (relevantLogos.length === 0) {
     relevantLogos = logoCandidates.slice(0, 15);
   }
-  
-  console.log(`Found ${logoCandidates.length} total candidates, ${relevantLogos.length} relevant`);
 
   const logosForLLM = relevantLogos.map(c => ({
     index: c.index,
@@ -211,8 +211,8 @@ export async function extractWithLLM(
   }));
 
   const llm = new ChatOpenAI({
-    modelName: "gpt-4o",
-    temperature: 0,
+    modelName: llmConfig.model,
+    temperature: llmConfig.temperature,
     openAIApiKey: openaiApiKey,
   });
 
